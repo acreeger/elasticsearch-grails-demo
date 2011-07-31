@@ -2,3 +2,4 @@ target
 cafe-centro*.i*
 *.iml
 data
+web-app/WEB-INF/tld/*.tld
