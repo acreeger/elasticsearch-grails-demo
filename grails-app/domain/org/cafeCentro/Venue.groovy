@@ -2,15 +2,18 @@ package org.cafeCentro
 
 class Venue {
 
+    def venueLocationService
+
     String name
-    String address1
-    String address2
-    String city
-    String region
-    String zipCode
     String coords
+    String city
 
     static constraints = {
-        zipCode(matches: /\d{5}/)
     }
+
+    public String toString() {"$name, $city"}
+
+//    def beforeInsert = {
+//       coords = venueLocationService.getLocationForVenue(name)
+//    }
 }

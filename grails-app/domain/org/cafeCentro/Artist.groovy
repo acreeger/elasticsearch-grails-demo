@@ -7,4 +7,8 @@ class Artist {
     static constraints = {
         name(blank: false)
     }
+
+    public String toString() {
+        name
+    }
 }

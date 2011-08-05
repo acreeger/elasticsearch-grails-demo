@@ -4,15 +4,14 @@ class Event {
 
     static hasMany = [artists:Artist]
 
-    Date lastUpdated
-    Date dateCreated
-
-    Date startTime
     Venue venue
-    String name
+    Date date
 
     static constraints = {
-        startTime(min: new Date())
-        name(blank: false)
+
+    }
+
+    def getName() {
+        return artists.name.join(", ");
     }
 }
