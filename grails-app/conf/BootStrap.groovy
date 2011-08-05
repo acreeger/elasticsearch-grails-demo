@@ -44,7 +44,7 @@ class BootStrap {
             [name: "Cafe du nord",coords: "37.766011, -122.430435", city: "San Francisco"],
             [name: "The Grand Ballroom",coords: "37.787729, -122.421682", city: "San Francisco"],
             [name: "Hotel Utah",coords: "37.779529,-122.397981", city: "San Francisco"],
-            [name: "Bowery Ballrom",coords: "40.720760, -73.993868", city: "New York"],
+            [name: "Bowery Ballroom",coords: "40.720760, -73.993868", city: "New York"],
             [name: "Brooklyn Bowl",coords: "40.722285, -73.957461", city: "Brooklyn"],
             [name: "Webster Hall",coords: "40.732329, -73.989863", city: "New York"],
             [name: "The 40/40 Club",coords: "40.743159, -73.988891", city: "New York"],

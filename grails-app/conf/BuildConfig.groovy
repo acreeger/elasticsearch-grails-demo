@@ -30,6 +30,5 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        compile(':build-test-data:1.1.1')
     }
 }

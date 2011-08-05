@@ -17,6 +17,7 @@
             <g:if test="${flash.message}">
             <div class="message">${flash.message}</div>
             </g:if>
+            <g:render template="searchBox" />
             <div class="list">
                 <table>
                     <thead>
@@ -46,7 +47,7 @@
                 </table>
             </div>
             <div class="paginateButtons">
-                <g:paginate total="${eventInstanceTotal}" />
+                <g:paginate total="${eventInstanceTotal}" params="${paginationParams ?: [:]}" />
             </div>
         </div>
     </body>

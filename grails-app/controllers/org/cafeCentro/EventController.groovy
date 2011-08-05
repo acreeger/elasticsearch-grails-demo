@@ -8,6 +8,56 @@ class EventController {
         redirect(action: "list", params: params)
     }
 
+    def search = {
+        params.max = Math.min(params.max ? params.int('max') : 10, 100)
+        def criteria = Event.createCriteria()
+        def q = params.q ? "%${params.q}%" : null
+        def location = params.location ? "%${params.location}%" : null
+        def resultIds = criteria.list {
+            order("date","ASC")
+            projections {
+                distinct("id")
+                property("date")
+            }
+            if (q) {
+                or {
+                    "venue" {
+                        ilike("name", q)
+                    }
+                    "artists" {
+                        ilike("name", q)
+                    }
+                }
+            }
+            if (location) {
+                "venue" {
+                    ilike("city",location)
+                }
+            }
+        }.collect{it[0]}
+
+        def results = []
+
+        if (resultIds) {
+            def offset = params.offset ? params.int('offset')  : 0
+            def endValue = Math.min(offset + params.max - 1,resultIds.size() - 1)
+//            println "offset: $offset, endValue: $endValue"
+            def pagedResultIds = resultIds[offset..endValue]
+
+            results = Event.createCriteria().list {
+                order("date", "ASC")
+                inList("id",pagedResultIds)
+            }
+        }
+
+        def paginationParams = [:]
+        if (params.q) paginationParams.q = params.q
+        if (params.location) paginationParams.location = params.location
+
+        def model = [eventInstanceList:results, eventInstanceTotal:resultIds.size(),paginationParams:paginationParams]
+        render(view:"list",model: model)
+    }
+
     def list = {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
         [eventInstanceList: Event.list(params), eventInstanceTotal: Event.count()]

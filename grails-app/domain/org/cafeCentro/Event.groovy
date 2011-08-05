@@ -12,6 +12,6 @@ class Event {
     }
 
     def getName() {
-        return artists.name.join(", ");
+        return artists.sort{it.name}.name.join(", ");
     }
 }
