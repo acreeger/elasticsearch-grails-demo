@@ -7,6 +7,8 @@ class Event {
     Venue venue
     Date date
 
+    static searchable = true
+
     static constraints = {
 
     }

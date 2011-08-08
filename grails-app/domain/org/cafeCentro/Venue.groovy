@@ -2,6 +2,9 @@ package org.cafeCentro
 
 class Venue {
 
+    static searchable = {
+        root false
+    }
     def venueLocationService
 
     String name

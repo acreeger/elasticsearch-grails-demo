@@ -10,14 +10,42 @@ class EventController {
 
     def search = {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
+        def offset = params.offset ? params.int('offset') : 0
+        Map searchResults
+        boolean useES = params.useES?.toLowerCase() == "true"
+        if (useES) {
+            searchResults = performSearchUsingElasticSearch(params.q, params.location,offset, params.max)
+        }   else {
+            searchResults = performSearchUsingGORM(params.q, params.location,offset,params.max)
+        }
+
+        def results = searchResults.results
+        def totalResultCount = searchResults.totalCount
+        def paginationParams = [:]
+        if (params.q) paginationParams.q = params.q
+        if (params.location) paginationParams.location = params.location
+        if (useES) paginationParams.useES = useES
+
+        def model = [eventInstanceList:results, eventInstanceTotal:totalResultCount,paginationParams:paginationParams]
+        render(view:"list",model: model)
+    }
+
+    private def performSearchUsingElasticSearch(q,location,offset, max) {
+        Map searchResults = Event.search(q.encodeAsElasticSearchQuery(),[offset:offset,max:max,sort:"date"])
+
+        return [results:searchResults.searchResults, totalCount:searchResults.total]
+    }
+
+    private def performSearchUsingGORM(q, location, offset, max) {
+        //Using projections here as listDistinct (necessary because of the join to artists) messes up pagination
+        q = q ? "%${q}%" : null
+        location = location ? "%${location}%" : null
         def criteria = Event.createCriteria()
-        def q = params.q ? "%${params.q}%" : null
-        def location = params.location ? "%${params.location}%" : null
         def resultIds = criteria.list {
-            order("date","ASC")
+            order("date", "ASC")
             projections {
                 distinct("id")
-                property("date")
+                property("date") //SQLite doesn't like the query without this.
             }
             if (q) {
                 or {
@@ -39,9 +67,7 @@ class EventController {
         def results = []
 
         if (resultIds) {
-            def offset = params.offset ? params.int('offset')  : 0
-            def endValue = Math.min(offset + params.max - 1,resultIds.size() - 1)
-//            println "offset: $offset, endValue: $endValue"
+            def endValue = Math.min(offset + max, resultIds.size()) - 1
             def pagedResultIds = resultIds[offset..endValue]
 
             results = Event.createCriteria().list {
@@ -50,12 +76,8 @@ class EventController {
             }
         }
 
-        def paginationParams = [:]
-        if (params.q) paginationParams.q = params.q
-        if (params.location) paginationParams.location = params.location
-
-        def model = [eventInstanceList:results, eventInstanceTotal:resultIds.size(),paginationParams:paginationParams]
-        render(view:"list",model: model)
+        def totalResultCount = resultIds.size()
+        return [results:results, totalCount:totalResultCount]
     }
 
     def list = {
