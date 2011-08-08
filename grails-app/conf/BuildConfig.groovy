@@ -30,5 +30,8 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        compile(":elasticsearch:0.17.4.1-CREEGER")
     }
 }
+
+grails.plugin.location."elasticsearch" = "../elasticsearch-grails-plugin"

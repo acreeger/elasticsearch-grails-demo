@@ -54,10 +54,12 @@ grails.exceptionresolver.params.exclude = ['password']
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
+        elasticSearch.bulkIndexOnStartup = false
         grails.serverURL = "http://www.changeme.com"
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
+//        elasticSearch.client.mode = 'local'
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
@@ -84,7 +86,10 @@ log4j = {
            'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
            'org.springframework',
            'org.hibernate',
-           'net.sf.ehcache.hibernate'
+           'net.sf.ehcache.hibernate',
+           'org.grails.plugins.elasticsearch'
 
     warn   'org.mortbay.log'
+
+    //debug 'org.grails.plugins.elasticsearch'
 }
