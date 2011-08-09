@@ -31,7 +31,11 @@ class EventController {
     }
 
     private def performSearchUsingElasticSearch(q,location,offset, max) {
-        Map searchResults = Event.search(q.encodeAsElasticSearchQuery(),[offset:offset,max:max,sort:"date"])
+        def esQuery = q ? q.encodeAsElasticSearchQuery() : ""
+        def locationQueryString = location ? " venue.city:(${location.encodeAsElasticSearchQuery()})" : ""
+        esQuery += locationQueryString
+
+        Map searchResults = Event.search(esQuery,[offset:offset,max:max,sort:"date"])
 
         return [results:searchResults.searchResults, totalCount:searchResults.total]
     }
