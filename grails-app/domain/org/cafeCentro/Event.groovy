@@ -7,7 +7,9 @@ class Event {
     Venue venue
     Date date
 
-    static searchable = true
+    static searchable = {
+        venue component:true
+    }
 
     static constraints = {
 

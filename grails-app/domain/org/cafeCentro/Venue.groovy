@@ -4,6 +4,7 @@ class Venue {
 
     static searchable = {
         root false
+        coords type:"geo_point"
     }
     def venueLocationService
 

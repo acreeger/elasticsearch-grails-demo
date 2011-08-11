@@ -1,5 +1,7 @@
 package org.cafeCentro
 
+import org.grails.plugins.elasticsearch.util.GXContentBuilder
+
 class EventController {
 
     static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
@@ -31,9 +33,34 @@ class EventController {
     }
 
     private def performSearchUsingElasticSearch(q,location,offset, max) {
-        def esQuery = q ? q.encodeAsElasticSearchQuery() : ""
-        def locationQueryString = location ? " venue.city:(${location.encodeAsElasticSearchQuery()})" : ""
-        esQuery += locationQueryString
+        def coords = location ? getCoordsForLocation(location) : null
+
+        def esQuery = {
+            filtered {
+                query {
+                    if (q) {
+                        query_string {
+                            fields = ["venue.name","artists.name"]
+                            query = q.encodeAsElasticSearchQuery()
+                            default_operator = "AND"
+                        }
+                    } else {
+                        match_all {}
+                    }
+                }
+                filter {
+                    if (coords) {
+                        geo_distance("venue.coords":coords,distance:"20mi")
+                    } else {
+                        match_all {}
+                    }
+                }
+            }
+        }
+
+//        def builder = new GXContentBuilder()
+//
+//        println "Generated Query: ${builder.buildAsString(esQuery)}"
 
         Map searchResults = Event.search(esQuery,[offset:offset,max:max,sort:"date"])
 
@@ -82,6 +109,15 @@ class EventController {
 
         def totalResultCount = resultIds.size()
         return [results:results, totalCount:totalResultCount]
+    }
+
+    private getCoordsForLocation(String location) {
+        def locs = [
+            "san francisco":"37.7793, -122.4192",
+            "new york":"40.716667, -74"
+        ]
+
+        return locs[location.toLowerCase()]
     }
 
     def list = {
