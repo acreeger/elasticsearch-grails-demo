@@ -12,9 +12,19 @@ hibernate {
 // environment specific settings
 environments {
     development {
+//        dataSource {
+//            dbCreate = "create-drop" // one of 'create', 'create-drop','update'
+//            url = "jdbc:hsqldb:mem:devDB"
+//        }
         dataSource {
-            dbCreate = "create-drop" // one of 'create', 'create-drop','update'
-            url = "jdbc:hsqldb:mem:devDB"
+            dbCreate = "update"
+            url = "jdbc:mysql://localhost/cafe-centro"
+            pooled = true
+            driverClassName = "com.mysql.jdbc.Driver"
+            username = "appUser"
+            password = "password"
+            dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+//            logSql = true
         }
     }
     test {
