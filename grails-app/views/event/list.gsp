@@ -18,6 +18,9 @@
             <div class="message">${flash.message}</div>
             </g:if>
             <g:render template="searchBox" />
+            <g:if test="${params.q || params.location}">
+                <p>Displaying results ${start} to ${stop} of ${eventInstanceTotal} ${eventInstanceTotal == 1 ? 'result' : 'results'}. Search took ${searchTime/1000}s.</p>
+            </g:if>
             <div class="list">
                 <table>
                     <thead>

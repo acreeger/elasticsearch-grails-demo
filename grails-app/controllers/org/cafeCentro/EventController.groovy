@@ -1,6 +1,7 @@
 package org.cafeCentro
 
 import org.grails.plugins.elasticsearch.util.GXContentBuilder
+import org.apache.commons.lang.time.StopWatch
 
 class EventController {
 
@@ -15,12 +16,15 @@ class EventController {
         def offset = params.offset ? params.int('offset') : 0
         Map searchResults
         boolean useES = params.useES?.toLowerCase() == "true"
+        def stopwatch = new StopWatch()
+        stopwatch.start()
         if (useES) {
             searchResults = performSearchUsingElasticSearch(params.q, params.location,offset, params.max)
         }   else {
             searchResults = performSearchUsingGORM(params.q, params.location,offset,params.max)
         }
-
+        stopwatch.stop()
+        def searchTime = stopwatch.time
         def results = searchResults.results
         def totalResultCount = searchResults.totalCount
         def paginationParams = [:]
@@ -28,7 +32,10 @@ class EventController {
         if (params.location) paginationParams.location = params.location
         if (useES) paginationParams.useES = useES
 
-        def model = [eventInstanceList:results, eventInstanceTotal:totalResultCount,paginationParams:paginationParams]
+        def start = offset + 1
+        def stop = Math.min(offset+params.max, totalResultCount)
+
+        def model = [eventInstanceList:results, eventInstanceTotal:totalResultCount,paginationParams:paginationParams,searchTime:searchTime,start:start,stop:stop]
         render(view:"list",model: model)
     }
 
@@ -104,7 +111,11 @@ class EventController {
             results = Event.createCriteria().list {
                 order("date", "ASC")
                 inList("id",pagedResultIds)
+
+                join 'venue'
+                fetchMode "artists", org.hibernate.FetchMode.SELECT
             }
+
         }
 
         def totalResultCount = resultIds.size()
