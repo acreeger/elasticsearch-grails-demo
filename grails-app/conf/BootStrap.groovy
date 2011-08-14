@@ -6,6 +6,10 @@ import java.security.SecureRandom
 
 class BootStrap {
 
+    def grailsApplication
+
+    def sessionFactory
+
     def artists = [
             "Prince",
             "Death Cab for Cutie",
@@ -58,32 +62,42 @@ class BootStrap {
         buildArtists()
 
         def rnd = new SecureRandom()
-        1000.times {
-            def date
-            use (TimeCategory) {
-                date = ((1 + rnd.nextInt(730)) * 24).hours.from.now
-            }
 
-            def eventArtists = []
+        def skipEventCreation = grailsApplication.config.skipEventCreation ?: false
+        int numberOfEvents = grailsApplication.config.numberOfEvents ?: 1000
 
-            (1 + rnd.nextInt(3)).times {
-                def added = false
-                while (!added) {
-                    def artist = Artist.findByName(artists[rnd.nextInt(artists.size())])
-                    if (!eventArtists.contains(artist)) {
-                        eventArtists << artist
-                        added = true
+        if (!skipEventCreation) {
+            numberOfEvents.times { i ->
+                if (i && i % 10000 == 0) {
+                    sessionFactory.currentSession.flush()
+                    sessionFactory.currentSession.clear()
+                }
+                def date
+                use (TimeCategory) {
+                    date = ((1 + rnd.nextInt(730)) * 24).hours.from.now
+                }
+
+                def eventArtists = []
+
+                (1 + rnd.nextInt(3)).times {
+                    def added = false
+                    while (!added) {
+                        def artist = Artist.findByName(artists[rnd.nextInt(artists.size())])
+                        if (!eventArtists.contains(artist)) {
+                            eventArtists << artist
+                            added = true
+                        }
                     }
                 }
+
+                def props = [
+                        venue : Venue.findByName(venues[rnd.nextInt(venues.size())].name),
+                        artists : eventArtists,
+                        date : date
+                ]
+
+                new Event(props).save(failOnError:true)
             }
-
-            def props = [
-                venue : Venue.findByName(venues[rnd.nextInt(venues.size())].name),
-                artists : eventArtists,
-                date : date
-            ]
-
-            new Event(props).save(failOnError:true)
         }
 
     }

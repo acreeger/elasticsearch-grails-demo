@@ -51,6 +51,9 @@ grails.spring.bean.packages = []
 // request parameters to mask when logging exceptions
 grails.exceptionresolver.params.exclude = ['password']
 
+elasticSearch.maxBulkRequest = 5000
+numberOfEvents = 1000000
+skipEventCreation = true
 // set per-environment serverURL stem for creating absolute links
 environments {
     production {
@@ -59,6 +62,7 @@ environments {
     }
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
+        elasticSearch.bulkIndexOnStartup = false
 //        elasticSearch.client.mode = 'local'
     }
     test {
