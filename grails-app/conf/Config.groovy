@@ -63,7 +63,7 @@ environments {
     development {
         grails.serverURL = "http://localhost:8080/${appName}"
         elasticSearch.bulkIndexOnStartup = false
-//        elasticSearch.client.mode = 'local'
+        elasticSearch.client.mode = 'node'
     }
     test {
         grails.serverURL = "http://localhost:8080/${appName}"
@@ -90,8 +90,9 @@ log4j = {
            'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
            'org.springframework',
            'org.hibernate',
-           'net.sf.ehcache.hibernate',
-           'org.grails.plugins.elasticsearch'
+           'net.sf.ehcache.hibernate'
+
+    warn   'org.grails.plugins.elasticsearch'
 
     warn   'org.mortbay.log'
 
